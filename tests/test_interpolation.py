@@ -15,11 +15,13 @@ PIECEWISE_INTERPOLATIONS = [
 
 @pytest.mark.parametrize("v, x1, x2, y1, y2, expected", INTERPOLATIONS)
 def test_linear_interpolate(v, x1, x2, y1, y2, expected):
+    """y is expected value at x=v"""
     assert terp.linearly_interpolate(v, x1, x2, y1, y2) == approx(expected)
 
 
 @pytest.mark.parametrize("v, x1, x2, y1, y2, expected", INTERPOLATIONS)
 def test_linear_interpolator(v, x1, x2, y1, y2, expected):
+    """after creating interpolator, y is expected value at x=v"""
     interpolator = terp.linear_interpolator(x1, x2, y1, y2)
     result = interpolator(v)
     assert result == approx(expected)
@@ -33,6 +35,7 @@ def test_linear_interpolator(v, x1, x2, y1, y2, expected):
     ],
 )
 def test_piecewise_index(v, numbers, index):
+    """index of piecewise line is as expected"""
     result = terp.piecewise_index(v, numbers)
     assert result == index
 
@@ -44,6 +47,7 @@ def test_piecewise_index(v, numbers, index):
     ],
 )
 def test_piecewise_line_coordinates_from_index(idx, xs, ys, tup):
+    """coordinates of piecewise line are as expected"""
     result = terp.piecewise_line_coordinates_from_index(idx, xs, xs[1:], ys, ys[1:])
     assert result == approx(tup)
 
@@ -55,18 +59,21 @@ def test_piecewise_line_coordinates_from_index(idx, xs, ys, tup):
     ],
 )
 def test_piecewise_line_coordinates_from_value(v, xs, ys, tup):
+    """coordinates of piecewise line are as expected"""
     result = terp.piecewise_line_coordinates_from_value(v, xs, ys)
     assert result == approx(tup)
 
 
 @pytest.mark.parametrize("v, xs, ys, expected", PIECEWISE_INTERPOLATIONS)
 def test_piecewise_interpolate(v, xs, ys, expected):
+    """y is expected value at x=v across piecewise portions of curve"""
     result = terp.piecewise_interpolate(v, xs, ys)
     assert result == approx(expected)
 
 
 @pytest.mark.parametrize("v, xs, ys, expected", PIECEWISE_INTERPOLATIONS)
 def test_piecewise_interpolator(v, xs, ys, expected):
+    """after creating interpolator, y is expected value at x=v across piecewise portions of curve"""
     interpolator = terp.piecewise_interpolator(xs, ys)
     result = interpolator(v)
     assert result == approx(expected)
