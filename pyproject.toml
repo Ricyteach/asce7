@@ -1,0 +1,15 @@
+[build-system]
+requires = ["flit_core >=2,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.metadata]
+module = "asce7"
+author = "Ricky L Teachey Jr"
+author-email = "ricky@teachey.org"
+home-page = "https://teachey.org"
+classifiers = ["License :: OSI Approved :: MIT License"]
+
+[tool.flit.metadata.requires-extra]
+test = [
+    "pytest",
+]
