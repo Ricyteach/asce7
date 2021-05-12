@@ -4,14 +4,14 @@ import pytest
 
 @pytest.fixture
 def example_1dstandard():
-    return ParameterStandard([[1, 2, 3],[4, 5, 6]], {'x':[5, 15, 25]}, {'label': ['a', 'b']})
+    return ParameterStandard({'chart_label': [[1, 2, 3],[4, 5, 6]]}, {'x':[5, 15, 25]}, {'label': ['a', 'b']})
 
 
 @pytest.fixture
 def example_2dstandard():
-    return ParameterStandard([[[1, 2, 3],[4, 5, 6]],
-                              [[10, 20, 30],[40, 50, 60]]], {'x':[100, 200],
-                                                             'y':[5, 15, 25]}, {'label': ['a', 'b']})
+    return ParameterStandard({'chart_label p': [[1, 2, 3], [4, 5, 6]],
+                              'chart_label q': [[10, 20, 30], [40, 50, 60]]}, {'x':[100, 200],
+                                                                               'y':[5, 15, 25]}, {'label': ['a', 'b']})
 
 
 @pytest.fixture(params=[0, 1])
