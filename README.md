@@ -7,13 +7,13 @@ Proposed, example API (not yet implemented):
 ```python
 # Example calculation module
 
-import asce7.chapter1 as ch1
-import asce7.chapter7 as ch7
+from asce7.v2016 import RiskCategory, importance_factor
+import asce7.v2016.chapter7 as ch7
 from asce7.chapter2.load_combination import asd as asd_combo, strength as strn_combo
 
-risk = ch1.risk_category("II")  # or
-risk = ch1.risk_category(2)  # or
-risk = ch1.risk_category.II
+risk = RiskCategory["II"]  # or
+risk = RiskCategory(2)  # or
+risk = RiskCategory.II
 
 # Snow importance factor
 I_s = ch7.I_s(risk)
@@ -43,8 +43,8 @@ C_t = ch7.C_t(thrml)
 p_f = ch7.p_f(C_e, C_t, I_s, p_g)
 
 # Some load combinations including snow
-strn2 = strn_combo[2](S = p_f)
-strn3 = strn_combo[3](S = p_f)
-asd3 = asd_combo[3](S = p_f)
-asd6 = asd_combo[6](S = p_f)
+strn2 = strn_combo[2](S=p_f)
+strn3 = strn_combo[3](S=p_f)
+asd3 = asd_combo[3](S=p_f)
+asd6 = asd_combo[6](S=p_f)
 ```
