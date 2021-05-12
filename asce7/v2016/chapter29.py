@@ -25,4 +25,5 @@ def _fig_29p4d7_GCrn_nom():
         ],
     }
 
-    return ParameterStandard(fig_29p4d7_dependent_axis, fig_29p4d7_indexes, fig_29p4d7_labels)
+    return ParameterStandard(fig_29p4d7_dependent_axis, fig_29p4d7_indexes, fig_29p4d7_labels,
+                             lookup_input_adjuster=lambda *args: (args[0], np.log10(args[1])))

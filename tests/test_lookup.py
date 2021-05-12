@@ -2,19 +2,19 @@ from asce7.lookup import ParameterStandard
 import pytest
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def example_1dstandard():
     return ParameterStandard({'chart_label': [[1, 2, 3],[4, 5, 6]]}, {'x':[5, 15, 25]}, {'label': ['a', 'b']})
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def example_2dstandard():
     return ParameterStandard({'chart_label p': [[1, 2, 3], [4, 5, 6]],
                               'chart_label q': [[10, 20, 30], [40, 50, 60]]}, {'x':[100, 200],
                                                                                'y':[5, 15, 25]}, {'label': ['a', 'b']})
 
 
-@pytest.fixture(params=[0, 1])
+@pytest.fixture(params=[0, 1], scope='module')
 def example_standard(request, example_1dstandard, example_2dstandard):
     return [example_1dstandard, example_2dstandard][request.param]
 
