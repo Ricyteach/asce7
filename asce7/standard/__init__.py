@@ -2,15 +2,27 @@
 codes."""
 
 import dataclasses
-import itertools
+import math
 import types
-from typing import Sequence, Union, Iterable, Sized, ClassVar, cast, TypedDict, Optional, Mapping
+from typing import Sequence, Union, Iterable, Sized, ClassVar, cast, TypedDict, Optional, Literal, TypeVar
 
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d, interp2d
 
+from asce7.equal import all_equal
+
 SizedIterable = types.new_class("SizedIterable", (Sized, Iterable), {})
+FloatSeq_1D_or_2D = Union[Sequence[float], Sequence[Sequence[float]]]
+T = TypeVar("T")
+XYZ = Literal["x", "y", "z"]
+
+
+class XYZDict(TypedDict, total=False):
+    x: T
+    y: T
+    z: T
+
 
 try:
     del pd.DataFrame.lookup
@@ -23,15 +35,6 @@ class StrictDivisionError(ValueError):
         super().__init__("modulo operation resulted in a remainder")
 
 
-def all_equal(iterable):
-    """Returns False if all the elements are not equal to each other, returns (value, grouper iterator) otherwise."""
-
-    g = itertools.groupby(iterable)
-    if (result := next(g, True)) and next(g, None) is None:
-        return result
-    return False
-
-
 def strict_integer_division(numerator: int, denominator: int) -> int:
     """Integer division; no remainder is allowed."""
 
@@ -42,37 +45,114 @@ def strict_integer_division(numerator: int, denominator: int) -> int:
         return result
 
 
-def _shape_matched_dataframe(xyz_mapping: Mapping, *, index: Optional[pd.Index] = None) -> pd.DataFrame:
-    n_rows = len(index) if index is not None else None
+def _xyz_shapes_to_buckets(shapes: XYZDict, shapes_1d: XYZDict, shapes_2d: XYZDict) -> None:
+    # split all the shapes into 1d and 2d buckets. y may be None (for 1d interpolation)
+    name: XYZ
+    for name, shape in shapes.items():
+        if len(shape) not in (1,2):
+            if not shape and name != "y":
+                raise TypeError(f"{name:s} is atomic, must be a 1d or 2d sequence")
+            elif not shape:
+                continue
+            raise TypeError(f"{name:s} has invalid shape, {shape!r}")
 
-    arg_arrays = {k: np.array(v) for k, v in xyz_mapping.items()}
-    arg_dimensions = {k: v.ndim for k, v in arg_arrays.items()}
-    arg_shapes = {k: v.shape for k, v in arg_arrays.items()}
+        try:
+            shapes_1d[name], = shape
+        except ValueError:
+            shapes_2d[name] = _, _ = shape
 
-    max_dimensions = max(arg_dimensions.values())
-    max_dim_keys = tuple(k for k, v in arg_dimensions.items() if v == max_dimensions)
 
-    if max_dimensions > 2:
-        raise TypeError(f"Invalid max. argument dimensions, {max_dim_keys!r}:{max_dimensions:d}")
-    elif max_dimensions == 1 and n_rows is None:
-        raise TypeError("Must provide number of rows if all arguments are 1d")
-    elif max_dimensions == 2:
-        n_rows_lst = [arg_arrays[k].shape[0] for k in max_dim_keys]
-        if all_equal(n_rows_lst):
-            n_rows_from_args = n_rows_lst[0]
-        else:
-            raise TypeError(f"The shapes of the 2d arrays {' and '.join(max_dim_keys)} do not match")
+def _get_xyz_n_rows(index: Optional[pd.Index], shapes_2d: XYZDict) -> int:
+    n_rows: int = len(index) if index is not None else None
+
+    if not shapes_2d:
+        # for the case of all 1d arguments, an index has to be specified to count the rows
         if n_rows is None:
-            n_rows = n_rows_from_args
+            raise TypeError("Must provide an index if all arguments are 1d")
+    else:
+        # in all cases with 2d arguments, number of rows is assumed to be shape_2d[0] (and all shape_2d[0] are equal)
+        equal_rows = all_equal([shape_2d[0] for shape_2d in shapes_2d.values()])
+        if equal_rows and n_rows is None:
+            n_rows = equal_rows.value
+        elif equal_rows and n_rows != equal_rows.value:
+            raise TypeError(f"n_rows and number of rows in {', '.join(shapes_2d.keys())} 2d array(s)) do not match")
+        elif not equal_rows:
+            raise TypeError(f"Number of rows in the 2d arrays {' and '.join(shapes_2d.keys())} do not match") from None
         else:
-            if n_rows != n_rows_from_args:
-                raise TypeError(f"The provided number of rows and {', '.join(max_dim_keys)} 2d array shape(s) do not match")
+            # the n_rows from the supplied index is fine, do nothing
+            pass
+    return n_rows
 
-    if arg_shapes["y"] == ():
+
+def _get_xyz_lengths(shapes_1d: XYZDict, shapes_2d: XYZDict) -> XYZDict:
+    lengths = {}
+
+    # argument lengths for 1d arguments x or y assumed to just be the shape_1d length (even if some arguments are 2d)
+    lengths.update(**{name: v for name, v in shapes_1d.items() if name != "z"})
+
+    # argument lengths for 2d arguments x or (optionally) y assumed to just be the z argument length divided by the
+    # other shape_1d argument length if it exists. if both are 2d, or one is missing, assume it is the shape_2d[1]
+    yx: XYZ
+    switch_xy = {"x": "y", "y": "x"}
+    for xy, xy_over_length in ((name, value) for name, (value, _) in shapes_2d.items() if name != "z"):
+        yx = cast(XYZ, switch_xy[xy])
+        try:
+            yx_length = shapes_1d[yx]
+        except KeyError:
+            # both are 2d or one (hopefully y) is missing
+            lengths[xy] = xy_over_length
+        else:
+            lengths[xy] = strict_integer_division(xy_over_length, yx_length)
+
+    # SANITY CHECKS
+
+    # in cases with all 2d arguments, all shape_2d[1] are equal
+    equal_lengths = all_equal([shape_2d[1] for shape_2d in shapes_2d.values()])
+    if not equal_lengths:
+        raise TypeError(f"Argument lengths of {' and '.join(shapes_2d.keys())} do not match") from None
+    lengths.update(**{name: equal_lengths.value for name in shapes_2d.keys()})
+
+    if math.prod(length for name, length in lengths.items() if name != "z") != lengths["z"]:
+        raise TypeError(f"The z length is not compatible with the {' and '.join(lengths.keys())} length(s)")
+
+    return lengths
+
+
+def _shape_matched_dataframe(xyz_dct: XYZDict, *, index: Optional[pd.Index] = None) -> pd.DataFrame:
+
+    arguments = ("x", "y", "z")
+
+    # PREPARATION OF NEEDED INFORMATION
+    name: XYZ
+
+    arrays: XYZDict = {name: np.array(xyz_dct[cast(XYZ, name)]) for name in arguments}
+    shapes: XYZDict = {arg_name: v.shape for arg_name, v in arrays.items()}
+
+    # split all the shapes into 1d and 2d buckets (y may be None for 1d interpolation)
+    shapes_1d = cast(XYZDict, {})  # 1d bucket
+    shapes_2d = cast(XYZDict, {})  # 2d bucket
+    _xyz_shapes_to_buckets(shapes, shapes_1d, shapes_2d)
+
+    # DETERMINE THE NUMBER OF ROWS OF THE RESULTANT DATAFRAME
+    n_rows = _get_xyz_n_rows(index, shapes_2d)
+
+    # in all cases, final_length of a all arguments is assumed to be the max length of the last provided dimension
+    final_length = max(arguments, key=lambda n: shapes[cast(XYZ, n)][-1])
+
+    # DETERMINE THE ARGUMENT LENGTHS (NEEDED TO CONSTRUCT THE RESULTANT DATAFRAME)
+    lengths = _get_xyz_lengths(shapes_1d, shapes_2d)
+
+    # UPDATE THE ARRAYS
+
+    if shapes["y"] == ():
         # 1d interpolation case
-        for arg_name, arg in arg_arrays.items():
-            if arg_dimensions[arg_name] == 1:
-                arg_arrays[arg_name] = [arg] * n_rows
+        for name, arg in arrays.items():
+            if dimensions[name] == 1:
+                arrays[name] = [arg] * n_rows
+        column_multiindexes = {
+            arg_name:pd.MultiIndex.from_product([[arg_name], range(shapes["x"][0])], names=("Axis", "x"))
+            for arg_name in "xz"
+        }
     else:
         # 2d interpolation case
         # min_dimensions = min(arg_dimensions.values())
@@ -81,33 +161,51 @@ def _shape_matched_dataframe(xyz_mapping: Mapping, *, index: Optional[pd.Index] 
         #     raise TypeError(f"Invalid min. argument dimensions, {', '.join(min_dim_keys)}:{min_dimensions:d}")
         #
         if max_dimensions == 1:
-            n_columns = arg_shapes["x"][0] * arg_shapes["y"][0]
+            n_columns = shapes["x"][0] * shapes["y"][0]
         else:
             try:
-                n_columns, _ = all_equal(v[1] for k, v in arg_shapes.items() if arg_dimensions[k] == 2)
+                n_columns, _ = all_equal(v[1] for name, v in shapes.items() if dimensions[name] == 2)
             except TypeError:
                 raise TypeError(f"The shapes of the 2d arrays {' and '.join(max_dim_keys)} do not match") from None
 
-        for arg_name, arg in arg_arrays.items():
-            if arg_dimensions[arg_name] == 1:
-                arg_1d_shape = arg_shapes[arg_name][0]
-                arg_arrays[arg_name] = np.tile(arg, (n_rows, strict_integer_division(n_columns, arg_1d_shape)))
+        for name, arg in arrays.items():
+            if dimensions[name] == 1:
+                arrays[name] = np.tile(arg, (n_rows, strict_integer_division(n_columns, shapes_1d[name])))
 
-    if not all_equal(v.shape for v in arg_arrays.values()):
+    if not all_equal(v.shape for v in arrays.values()):
         raise TypeError(f"The shapes of the arrays are incompatible")
 
+    # MULTIINDEXES FOR COLUMNS
 
+    # 1d interpolation case
+    column_multiindexes = {
+        arg_name:pd.MultiIndex.from_product([[arg_name], range(shapes["x"][0])], names=("Axis", "x"))
+        for arg_name in "xz"
+    }
 
-    return pd.DataFrame(np.hstack(arg_arrays.values()), index=index)
+    # 2d interpolation case
+    column_multiindexes = {
+        arg_name: pd.MultiIndex.from_product(
+            [
+                [arg_name],
+                range(lengths["x"][-1]),
+                range(lengths["y"][-1])
+            ],
+            names=("Axis", "x", "y")
+        )
+        for arg_name in "xyz"
+    }
+
+    return pd.DataFrame(np.hstack(arrays.values()), index=index)
 
 
 @dataclasses.dataclass(repr=False)
 class StandardLookup:
     """For interpolation lookups on tables, charts, and figures."""
 
-    x: Union[Sequence[float], Sequence[Sequence[float]]]
-    y: Union[Sequence[float], Sequence[Sequence[float]]]
-    z: Union[Sequence[float], Sequence[Sequence[float]]]
+    x: FloatSeq_1D_or_2D
+    y: FloatSeq_1D_or_2D
+    z: FloatSeq_1D_or_2D
     index: Iterable
     columns: ClassVar[SizedIterable]
     df: pd.DataFrame = dataclasses.field(init=False)
