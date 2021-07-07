@@ -3,32 +3,34 @@
 from asce7.lookup import ParameterStandard
 
 
-def _fig7p4d1():
+_FIG7P4D1_Cs__STR = """
+        Surface Type
+        slippery        other
+
+C_t     roof slope (deg)
+1.0     5       70      30      70
+1.1     10      70      37.5    70
+1.2     15      70      45      70
+
+C_s     1.0      0      1.0     0
+""".replace("    ", "\t")
+
+
+def _fig7p4d1_Cs():
     """Figure 29.4-7: Design Wind Loads (All Heights): Rooftop Solar Panels for Enclosed and Partially Enclosed
     Buildings, Roof θ≤7°
 
     Nominal Net Pressure Coefficients (Gcrn)nom
     """
-    fig7p4d1_labels = {'Surface Type': ['slippery', 'other']}
-    fig7p4d1_indexes = {
-        'C_t': (1.0, 1.1, 1.2),  # temperature coefficient
-        'roof slope': [[[5, 70],[30, 70],],  # C_t = 1.0 chart
-                       [[10, 70],[37.5, 70],],  # C_t = 1.1 chart
-                       [[15, 70],[45, 70],],],  # C_t = 1.2 chart
+    seq = [value.strip() for line in _FIG7P4D1_Cs__STR[1:-1].split("\n") for value in line.strip().split(" " * 4)]
+    labels = {seq[0][0]: seq[1]}  # surface type
+    indexes = {
+        seq[4][0]: [float(row[0]) for row in seq[5:]],  # temperature coefficient, C_t
+        seq[4][1]: [[eval(v) for v in row[1:]] for row in seq[5:]],  # roof slope (deg) tuples
     }
-    fig7p4d1_dependent_axis = {
-        'C_t = 1.0 chart': [
-            [1.0, 0], [1.0, 0],
-        ],
-        'C_t = 1.1 chart': [
-            [1.0, 0], [1.0, 0],
-        ],
-        'C_t = 1.2 chart': [
-            [1.0, 0], [1.0, 0],
-        ],
-    }
+    dependent_axis = {seq[2][1]: [eval(v) for v in seq[3]]}  # C_s
 
-    return ParameterStandard(fig7p4d1_dependent_axis, fig7p4d1_indexes, fig7p4d1_labels)
+    return ParameterStandard(dependent_axis, indexes, labels)
 
 
 def _fig7p3d2a(roof_slope_deg):
