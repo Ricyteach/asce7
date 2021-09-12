@@ -1,19 +1,27 @@
 """ASCE 7 Figures"""
 
 from asce7.lookup import ParameterStandard
-
+from types import SimpleNamespace
 
 _FIG7P4D1_Cs__STR = """
-        Surface Type
-        slippery        other
+                        C_t
+                        1.0     1.1     1.2
+Surface Type    C_s
+slippery        1.0     0       0       0
+                1.0     5       10      15
+                0       70      70      70
+                0       90      90      90
+other           1.0     0       0       0
+                1.0     30      37.5    45
+                0       70      70      70
+                0       90      90      90
+""".replace("    ", "\t")[1:-1]
 
-C_t     roof slope (deg)
-1.0     5       70      30      70
-1.1     10      70      37.5    70
-1.2     15      70      45      70
-
-C_s     1.0      0      1.0     0
-""".replace("    ", "\t")
+_FIG7P4D1_Cs__NS = SimpleNamespace()
+_FIG7P4D1_Cs__NS.Cs = (1.0, 1.0, 0, 0)
+_FIG7P4D1_Cs__NS.Ct = (1.0, 1.1, 1.2)
+_FIG7P4D1_Cs__NS.surface_type = ("slippery", "other")
+_FIG7P4D1_Cs__NS.roof_slope = None
 
 
 def _fig7p4d1_Cs():
