@@ -7,8 +7,32 @@ Make a function that linearly interpolates a value from another value on a curve
 `scipy.interpolate.interp1d`
 
 ### 2d Interpolator
-Make a function that linearly interpolates a value from a pair of coordinate values on a surface.
-`scipy.interpolate.interp2d`
+Make a function that twice linearly interpolates a value from a set of curves.
+
+```markdown
+Parameters
+----------
+x,y : 1d array_like of numbers
+    the independent data of the curve
+z : 1d array_like of numbers
+    the dependent data of the curve
+bounds_error : bool, optional
+    if True, when interpolated values are requested outside the domain of the input data (x,y), 
+    a ValueError is raised. If False, then fill_value is used.
+fill_value : number, optional
+    If provided, the value to use for points outside the interpolation domain. If omitted (None), 
+    values outside the  domain are extrapolated via nearest-neighbor extrapolation.
+
+Returns
+-------
+interpolator function
+    a function that interpolates values
+
+Raises
+------
+ValueError
+    when a value error
+```
 
 ### Interpolator Dictionary
 Make a dictionary that looks up an interpolator.
