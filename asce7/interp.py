@@ -49,9 +49,9 @@ def interp2d(x, y, z, axis = 0, bounds_error = True, fill_value = None):
     name_smallest, smallest = args_sorted[0][1:]
 
 
-def _twice_interp1d_with_2d_z_list(x_arr, y_arr, z_arr, x_axis, bounds_error, fill_value):
+def _twice_interp1d_with_2d_z(x_arr, y_arr, z_arr, x_axis, bounds_error, fill_value):
 
-    y_axis = abs(x_axis - 1)
+    y_axis = 1 ^ x_axis
     axis_dict = {x_axis: x_arr, y_axis: y_arr}
     row_arr, col_arr = (axis_dict[i] for i in (0,1))
     if (row_arr.size, col_arr.size) != z_arr.shape:
@@ -84,8 +84,35 @@ def _twice_interp1d_with_2d_z_list(x_arr, y_arr, z_arr, x_axis, bounds_error, fi
     return interpolate
 
 
-if __name__ == "__main__":
-    f = _twice_interp1d_with_2d_z_list(np.array([1,2]), np.array([1,2,3]), np.array([[1,2,3],[4,5,6]]), x_axis=0, bounds_error=False, fill_value=None)
-    assert f(1.5, 1.5) == 3.0
-    assert f(1, 1.5) == 1.5
-    assert f(1.5, 1) == 2.5
+def _twice_interp1d_with_2d_x(x_arr, y_arr, z_arr, y_axis, bounds_error, fill_value):
+
+    row_arr, col_arr = y_arr, z_arr
+    if y_axis == 1:
+        x_arr = x_arr.transpose()
+    if (row_arr.size, col_arr.size) != x_arr.shape:
+        raise ValueError(f"Shape of x does not match sizes of y and z with y at axis {y_axis} of x")
+
+    interp1d_rows = [interp1d(row, col_arr, bounds_error=bounds_error, fill_value=fill_value) for row in x_arr]
+
+    def interpolate(x, y):
+        """Interpolate the function.
+
+         Parameters
+         ----------
+         x : 1-D array
+             x-coordinates of the mesh on which to interpolate.
+         y : 1-D array
+             y-coordinates of the mesh on which to interpolate.
+
+         Returns
+         -------
+         z : 2-D array with shape (len(y), len(x))
+             The interpolated values.
+        """
+
+        row_v, col_v = y, x
+
+        temp_x = [f(col_v) for f in interp1d_rows]
+        return interp1d(row_arr, temp_x, bounds_error=bounds_error, fill_value=fill_value)(x)
+
+    return interpolate
