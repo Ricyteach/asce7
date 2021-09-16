@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from asce7.interp import _twice_interp1d_with_2d_z,_twice_interp1d_with_2d_x
+from asce7.interp import interp1d_twice
 from asce7.common import Log
 
 
@@ -10,10 +10,9 @@ from asce7.common import Log
     (1.5, 1, 2.5),
 ])
 def test_twice_interp1d_with_2d_z(x, y, z):
-    f = _twice_interp1d_with_2d_z(np.array([1,2]), np.array([1,2,3]), np.array([[1,2,3],
-                                                                                [4,5,6]]),
-                                  x_axis=0, bounds_error=True, fill_value=None)
-    assert f(x, y) == z
+    f = interp1d_twice(np.array([1, 2]), np.array([1, 2, 3]), np.array([[1, 2, 3],
+                                                                        [4,5,6]]), axis=0, bounds_error=True, fill_value=None)
+    assert f(x, y, dependent_2d=True) == z
 
 
 @pytest.mark.skip(reason="YAGNI?")
@@ -29,11 +28,10 @@ def test_twice_interp1d_with_2d_x(x, y, z):
     See:
     https://github.com/scipy/scipy/issues/14735
     """
-    f = _twice_interp1d_with_2d_x(np.array([[1,2],
-                                            [3,4],
-                                            [5,6]]), np.array([1,2,3]), np.array([1,2]),
-                                  y_axis=0, bounds_error=True, fill_value=None)
-    assert f(x, y) == z
+    f = interp1d_twice(np.array([[1, 2],
+                                 [3,4],
+                                 [5,6]]), np.array([1,2,3]), np.array([1,2]), axis=0, bounds_error=False, fill_value=None)
+    assert f(x, y, dependent_2d=False) == z
 
 
 @pytest.fixture
@@ -43,7 +41,7 @@ def interp1d_with_2d_x_FIG7P4D1_Cs():
              [0, 15, 70, 90]])
     y_arr = np.array([1.0, 1.1, 1.2])
     z_arr = np.array([1.0, 1.0, 0, 0])
-    return _twice_interp1d_with_2d_x(x_arr, y_arr, z_arr, 0, True, None)
+    return interp1d_twice(x_arr, y_arr, z_arr, 0, True, None)
 
 
 @pytest.fixture
@@ -51,7 +49,7 @@ def interp1d_with_2d_z_FIG29P4D7_GCrn_nom_Zone_1():
     x_arr = np.array([Log(1), Log(500), Log(5000)])
     y_arr = np.array([0, 5, 15, 35])
     z_arr = np.array([[1.5, 0.35, 0.10], [1.5, 0.35, 0.10], [2.0, 0.56, 0.30], [2.0, 0.56, 0.30]])
-    return _twice_interp1d_with_2d_z(x_arr, y_arr, z_arr, 1, True, None)
+    return interp1d_twice(x_arr, y_arr, z_arr, 1, True, None)
 
 
 @pytest.mark.parametrize("x, y, expected", [
@@ -79,7 +77,7 @@ def interp1d_with_2d_z_FIG29P4D7_GCrn_nom_Zone_1():
     (80, 1.2, 0),
 ])
 def test_FIG7P4D1_Cs(x, y, expected, interp1d_with_2d_x_FIG7P4D1_Cs):
-    result = interp1d_with_2d_x_FIG7P4D1_Cs(x, y)
+    result = interp1d_with_2d_x_FIG7P4D1_Cs(x, y, dependent_2d=False)
     np.testing.assert_array_equal(result, expected)
 
 
@@ -98,5 +96,5 @@ def test_FIG7P4D1_Cs(x, y, expected, interp1d_with_2d_x_FIG7P4D1_Cs):
     (Log(5000), 35, 0.30),
 ])
 def test_FIG29P4D7_GCrn_nom_Zone_1(x, y, expected, interp1d_with_2d_z_FIG29P4D7_GCrn_nom_Zone_1):
-    result = interp1d_with_2d_z_FIG29P4D7_GCrn_nom_Zone_1(x, y)
+    result = interp1d_with_2d_z_FIG29P4D7_GCrn_nom_Zone_1(x, y, dependent_2d=True)
     np.testing.assert_array_almost_equal(result, expected, decimal=16)
