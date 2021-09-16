@@ -1,9 +1,16 @@
 from scipy.interpolate import interp1d
 import numpy as np
 from math import prod
-import itertools as it
 
 # Note: interp2d doesn't give the right results. no idea why, so have to write own interp2d
+
+
+def _interp1d_rows_w_2d_x(x_arr, col_arr, bounds_error, fill_value):
+    return [interp1d(row, col_arr, bounds_error=bounds_error, fill_value=fill_value) for row in x_arr]
+
+
+def _interp1d_rows_w_2d_z(z_arr, col_arr, bounds_error, fill_value):
+    return [interp1d(col_arr, row, bounds_error=bounds_error, fill_value=fill_value) for row in z_arr]
 
 
 def interp2d(x, y, z, axis = 0, bounds_error = True, fill_value = None):
@@ -57,7 +64,7 @@ def _twice_interp1d_with_2d_z(x_arr, y_arr, z_arr, x_axis, bounds_error, fill_va
     if (row_arr.size, col_arr.size) != z_arr.shape:
         raise ValueError(f"Shape of z does not match sizes of x and y with x at axis {x_axis} of z")
 
-    interp1d_rows = [interp1d(col_arr, row, bounds_error=bounds_error, fill_value=fill_value) for row in z_arr]
+    interp1d_rows = _interp1d_rows_w_2d_z(z_arr, col_arr, bounds_error, fill_value)
 
     def interpolate(x, y):
         """Interpolate the function.
@@ -79,7 +86,7 @@ def _twice_interp1d_with_2d_z(x_arr, y_arr, z_arr, x_axis, bounds_error, fill_va
         row_v, col_v = (axis_dict[i] for i in (0,1))
 
         temp_z = [f(col_v) for f in interp1d_rows]
-        return interp1d(row_arr, temp_z, bounds_error=bounds_error, fill_value=fill_value)(x)
+        return interp1d(row_arr, temp_z, bounds_error=bounds_error, fill_value=fill_value)(row_v)
 
     return interpolate
 
@@ -92,7 +99,7 @@ def _twice_interp1d_with_2d_x(x_arr, y_arr, z_arr, y_axis, bounds_error, fill_va
     if (row_arr.size, col_arr.size) != x_arr.shape:
         raise ValueError(f"Shape of x does not match sizes of y and z with y at axis {y_axis} of x")
 
-    interp1d_rows = [interp1d(row, col_arr, bounds_error=bounds_error, fill_value=fill_value) for row in x_arr]
+    interp1d_rows = _interp1d_rows_w_2d_x(x_arr, col_arr, bounds_error, fill_value)
 
     def interpolate(x, y):
         """Interpolate the function.
@@ -113,6 +120,9 @@ def _twice_interp1d_with_2d_x(x_arr, y_arr, z_arr, y_axis, bounds_error, fill_va
         row_v, col_v = y, x
 
         temp_x = [f(col_v) for f in interp1d_rows]
-        return interp1d(row_arr, temp_x, bounds_error=bounds_error, fill_value=fill_value)(x)
+        return interp1d(row_arr, temp_x, bounds_error=bounds_error, fill_value=fill_value)(row_v)
 
+    interpolate.x = x_arr
+    interpolate.y = y_arr
+    interpolate.z = z_arr
     return interpolate
