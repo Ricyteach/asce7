@@ -1,7 +1,6 @@
 from asce7.common import InfoArray
 from scipy.interpolate import interp1d
 import numpy as np
-from math import prod
 
 # Note: interp2d doesn't give the right results. no idea why, so have to write own interp2d
 
