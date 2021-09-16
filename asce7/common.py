@@ -19,6 +19,7 @@ class Log(float):
 
 
 class InfoArray(np.ndarray):
+    """Same as numpy array but can have an info attribute"""
 
     def __new__(cls, input_array, info=None):
         # Input array is an array_like
