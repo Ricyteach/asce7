@@ -43,11 +43,10 @@ FIG29P4D7_GCrn_nom_DICT = interp_dict(
 )
 
 
-def fig_29p4d7_GCrn_nom(zone, tilt, area):
+def fig29p4d7_GCrn_nom(zone, tilt, area):
     """Figure 29.4-7: Design Wind Loads (All Heights): Rooftop Solar Panels for Enclosed and Partially Enclosed
     Buildings, Roof θ≤7°
 
     Nominal Net Pressure Coefficients (Gcrn)nom
     """
-    f = FIG29P4D7_GCrn_nom_DICT[zone]
-    return f(tilt, Log(area))
+    return FIG29P4D7_GCrn_nom_DICT[zone](tilt, Log(area))
