@@ -35,3 +35,9 @@ class InfoArray(np.ndarray):
         if obj is None:
             return
         self.info = getattr(obj, 'info', None)
+
+
+def iter_keys_view_if_has_a_keys_view(*args):
+    """Iterate over keys views if they exist."""
+
+    yield from (keys() for input in args if (keys := getattr(input, "keys", None)) is not None)

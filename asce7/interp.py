@@ -1,4 +1,5 @@
-from asce7.common import InfoArray
+from collections import defaultdict
+from asce7.common import InfoArray, iter_keys_view_if_has_a_keys_view
 from scipy.interpolate import interp1d
 import numpy as np
 
@@ -72,7 +73,7 @@ def _twice_interp1d(x_seq, y_seq, z_seq, first_dependent_axis, bounds_error, fil
     dependent_2d = True if inner_arr.info=="z" else False
     interp1d_rows = _interp1d_rows(inner_arr, col_arr, bounds_error, fill_value, dependent_2d=dependent_2d)
 
-    def interpolate(x, y, dependent_2d):
+    def interpolate(x, y):
 
         if dependent_2d:
             axis_dict = {first_dependent_axis: x, first_dependent_axis^1: y}
@@ -117,4 +118,32 @@ def interp1d_twice(x, y, z, axis=0, bounds_error=True, fill_value=None):
         when unexpected or incompatible array shapes are provided
     """
 
-    return _twice_interp1d(x, y, z, first_dependent_axis = axis, bounds_error = bounds_error, fill_value = fill_value)
+    return _twice_interp1d(x, y, z, first_dependent_axis=axis, bounds_error=bounds_error, fill_value=fill_value)
+
+
+def interp_dict(x, y, z=None, axis=0, bounds_error=True, fill_value=None):
+    kwargs = dict(axis=axis, bounds_error=bounds_error, fill_value=fill_value)
+    for keys_view in (keys_iterator := iter_keys_view_if_has_a_keys_view(x, y, z)):
+        if not all(kv == keys_view for kv in keys_iterator):
+            raise ValueError("mappings must have the same keys")
+        break
+    else:
+        raise ValueError("at least one mapping argument is required")
+
+    x_dct, y_dct, z_dct = tuple(input if hasattr(input, "keys") else defaultdict(f) for input, f in zip((x, y, z),
+                                                                                                        (lambda: x,
+                                                                                                         lambda: y,
+                                                                                                         lambda: z)))
+
+    dependent_dct = y_dct if z is None else z_dct
+    x_and_maybe_y_dicts = (x_dct,) if z is None else (x_dct, y_dct)
+    interp_func = interp1d if z is None else interp1d_twice
+    if z is None:
+        del kwargs["axis"]
+
+    result = {}
+    for key in keys_view:
+        x_and_maybe_y = list(x_and_maybe_y_dict[key] for x_and_maybe_y_dict in x_and_maybe_y_dicts)
+        result[key] = interp_func(*x_and_maybe_y, dependent_dct[key], **kwargs)
+
+    return result
