@@ -1,4 +1,5 @@
 """ASCE 7 Figures"""
+from asce7.common import Deg
 from asce7.interp import interp_dict
 from types import SimpleNamespace
 
@@ -24,14 +25,14 @@ FIG7P4D1_Cs_NS.Ct = (1.0, 1.1, 1.2)
 # X values
 FIG7P4D1_Cs_NS.roof_slope = dict(
     slippery=[
-        [0, 5, 70, 90],
-        [0, 10, 70, 90],
-        [0, 15, 70, 90],
+        [Deg(v) for v in [0, 5, 70, 90]],
+        [Deg(v) for v in [0, 10, 70, 90]],
+        [Deg(v) for v in [0, 15, 70, 90]],
     ],
     other=[
-        [0, 30, 70, 90],
-        [0, 37.5, 70, 90],
-        [0, 45, 70, 90],
+        [Deg(v) for v in [0, 30, 70, 90]],
+        [Deg(v) for v in [0, 37.5, 70, 90]],
+        [Deg(v) for v in [0, 45, 70, 90]],
     ]
 )
 
