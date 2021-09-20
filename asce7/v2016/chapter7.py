@@ -1,6 +1,5 @@
 """ASCE 7 Figures"""
-
-from asce7.lookup import ParameterStandard
+from asce7.interp import interp_dict
 from types import SimpleNamespace
 
 _FIG7P4D1_Cs__STR = """
@@ -17,31 +16,36 @@ other           1.0     0       0       0
                 0       90      90      90
 """.replace("    ", "\t")[1:-1]
 
-_FIG7P4D1_Cs__NS = SimpleNamespace()
-_FIG7P4D1_Cs__NS.Cs = (1.0, 1.0, 0, 0)
-_FIG7P4D1_Cs__NS.Ct = (1.0, 1.1, 1.2)
-_FIG7P4D1_Cs__NS.surface_type = ("slippery", "other")
-_FIG7P4D1_Cs__NS.roof_slope = None
+FIG7P4D1_Cs_NS = SimpleNamespace()
+# Z values
+FIG7P4D1_Cs_NS.Cs = (1.0, 1.0, 0, 0)
+# Y values
+FIG7P4D1_Cs_NS.Ct = (1.0, 1.1, 1.2)
+# X values
+FIG7P4D1_Cs_NS.roof_slope = dict(
+    slippery=[
+        [0, 5, 70, 90],
+        [0, 10, 70, 90],
+        [0, 15, 70, 90],
+    ],
+    other=[
+        [0, 30, 70, 90],
+        [0, 37.5, 70, 90],
+        [0, 45, 70, 90],
+    ]
+)
+
+FIG7P4D1_Cs_NS_DICT = interp_dict(
+    x=FIG7P4D1_Cs_NS.roof_slope,
+    y=FIG7P4D1_Cs_NS.Ct,
+    z=FIG7P4D1_Cs_NS.Cs,
+    axis=0
+)
 
 
-def _fig7p4d1_Cs():
-    """Figure 29.4-7: Design Wind Loads (All Heights): Rooftop Solar Panels for Enclosed and Partially Enclosed
-    Buildings, Roof θ≤7°
+def fig7p4d1_Cs(surface_type, roof_slope, temp_coefficient):
+    """Figure 7.4-1: Roof slope factor, Cs, for warm and cold roofs
 
-    Nominal Net Pressure Coefficients (Gcrn)nom
+    (Table 7.3-2 for Ct definitions)
     """
-    seq = [value.strip() for line in _FIG7P4D1_Cs__STR[1:-1].split("\n") for value in line.strip().split(" " * 4)]
-    labels = {seq[0][0]: seq[1]}  # surface type
-    indexes = {
-        seq[4][0]: [float(row[0]) for row in seq[5:]],  # temperature coefficient, C_t
-        seq[4][1]: [[eval(v) for v in row[1:]] for row in seq[5:]],  # roof slope (deg) tuples
-    }
-    dependent_axis = {seq[2][1]: [eval(v) for v in seq[3]]}  # C_s
-
-    return ParameterStandard(dependent_axis, indexes, labels)
-
-
-def _fig7p3d2a(roof_slope_deg):
-    """Retrieve value for C_t<=1.0"""
-    _fig_7_dsh_2a_interpolator(roof_slope_deg)
-    return interpolate()
+    return FIG7P4D1_Cs_NS_DICT[surface_type](roof_slope, temp_coefficient)
