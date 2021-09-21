@@ -7,13 +7,13 @@ Proposed, example API (not yet implemented):
 ```python
 # Example calculation module
 
-from asce7.v2016 import RiskCategory, importance_factor
+from asce7.v2016 import Risk, importance_factor
 import asce7.v2016.chapter7 as ch7
-from asce7.chapter2 import ASD, Strength
+from asce7.v2016.chapter2 import ASD, Strength
 
-risk = RiskCategory["II"]  # or
-risk = RiskCategory(2)  # or
-risk = RiskCategory.II
+risk = Risk["II"]  # or
+risk = Risk(2)  # or
+risk = Risk.II
 
 # Snow importance factor
 I_s = ch7.I_s(risk)

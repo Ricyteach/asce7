@@ -1,6 +1,6 @@
 """Implementation of the ASCE 7 2016 building code."""
 
-from .chapter1 import RiskCategory, importance_factor
+from .chapter1 import Risk, importance_factor
 from . import chapter2 as load_combinations
 from . import chapter7 as snow
 from . import chapter11 as seismic

@@ -6,7 +6,7 @@ seismic = asce7.seismic
 
 @pytest.fixture(params=["I", "II", "III", "IV"])
 def risk(request):
-    return asce7.RiskCategory[request.param]
+    return asce7.Risk[request.param]
 
 
 @pytest.mark.parametrize("load_type", [
