@@ -1,22 +1,8 @@
 import pytest
-
 import asce7.v2016 as asce7
-snow = asce7.snow
-seismic = asce7.seismic
 
-@pytest.fixture(params=["I", "II", "III", "IV"])
-def risk(request):
-    return asce7.Risk[request.param]
+def test_Is(all_risk):
+    assert asce7.I_s(all_risk)
 
-
-@pytest.mark.parametrize("load_type", [
-    "S", "E"
-])
-def test_importance_factor(load_type, risk):
-    assert asce7.importance_factor(load_type)(risk)
-
-def test_Is(risk):
-    assert asce7.I_s(risk)
-
-def test_Ie(risk):
-    assert asce7.I_e(risk)
+def test_Ie(all_risk):
+    assert asce7.I_e(all_risk)

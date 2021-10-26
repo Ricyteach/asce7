@@ -1,6 +1,6 @@
 """ASCE 7 Figures"""
 from asce7.common import Deg
-from asce7.interp import interp_dict
+from ceng.interp import interp_dict
 from types import SimpleNamespace
 
 _FIG7P4D1_Cs__STR = """

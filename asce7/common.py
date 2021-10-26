@@ -1,4 +1,5 @@
-from math import log10, pi, atan
+from math import pi, atan
+import numpy as np
 
 
 class SlopeIn12(float):
@@ -33,17 +34,21 @@ class Deg(float):
         return f'{type(self).__name__}({self.value:{format_spec}})'
 
 
-class Log(float):
+class Log(np.ndarray):
     """Representation for the log10 of a number."""
 
     def __new__(cls, value):
-        return super(Log, cls).__new__(cls, log10(value))
-
-    def __init__(self, value):
-        self.value = value
+        obj = np.asarray(np.log10(value)).view(cls)
+        obj.value = value
+        return obj
 
     def __repr__(self):
         return f'{type(self).__name__}({self.value})'
 
     def __format__(self, format_spec):
         return f'{type(self).__name__}({self.value:{format_spec}})'
+
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
+        self.value = getattr(obj, 'value', None)
