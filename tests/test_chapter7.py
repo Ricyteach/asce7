@@ -1,6 +1,7 @@
 from asce7.common import Deg, SlopeIn12
 from asce7.v2016.chapter7 import fig7p4d1_Cs
 from ceng.interp import interp1d_twice
+import numpy as np
 import pytest
 
 
@@ -60,5 +61,3 @@ def test_FIG7P4D1_Cs(FIG7P4D1_Cs_interpolations_xyz, interp1d_twice_with_2d_x_FI
     x, y, expected = FIG7P4D1_Cs_interpolations_xyz
     result = interp1d_twice_with_2d_x_FIG7P4D1_Cs(x, y)
     np.testing.assert_array_equal(result, expected)
-
-
