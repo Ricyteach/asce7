@@ -20,7 +20,7 @@ def FIG7P4D1_Cs_data():
              [0, 15, 70, 90]]
     y_arr = [1.0, 1.1, 1.2]
     z_arr = [1.0, 1.0, 0, 0]
-    return (x_arr, y_arr, z_arr)
+    return x_arr, y_arr, z_arr
 
 
 @pytest.fixture(scope="session", params=[

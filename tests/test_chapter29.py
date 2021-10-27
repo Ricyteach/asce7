@@ -12,7 +12,7 @@ def FIG29P4D7_GCrn_nom_Zone_1_data():
              [1.5, 0.35, 0.10],
              [2.0, 0.56, 0.30],
              [2.0, 0.56, 0.30]]
-    return (x_arr, y_arr, z_arr)
+    return x_arr, y_arr, z_arr
 
 
 @pytest.fixture(scope="session", params=[
