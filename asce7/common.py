@@ -1,3 +1,4 @@
+from functools import partial
 from math import pi, atan
 import numpy as np
 
@@ -52,3 +53,13 @@ class Log(np.ndarray):
         if obj is None:
             return
         self.value = getattr(obj, 'value', None)
+
+
+def attach_filter(filter_func, func=None):
+    """Add a `filter` attribute to the function so it can be used elsewhere."""
+
+    if func is None:
+        return partial(attach_filter, filter_func)
+
+    func.filter = filter_func
+    return func
