@@ -18,12 +18,12 @@ C                                           0.9     1.0         1.1
 D                                           0.8     0.9         1.0
 Windswept mountainous above tree line       0.7     0.8         nan
 Alaska no trees within 2 mi radius          0.7     0.8         nan
-""".replace("    ", "\t")[1:-1]
+"""[1:-1]
 
 
 TABLE7P3D1_Ce_NS = SimpleNamespace()
 TABLE7P3D1_Ce_NS.wind_surface_roughness = ("B", "C", "D", "Windswept mountainous above tree line",
-                                         "Alaska no trees within 2 mi radius")
+                                           "Alaska no trees within 2 mi radius")
 TABLE7P3D1_Ce_NS.snow_exposure = ("fully", "partially", "sheltered")
 TABLE7P3D1_Ce_NS.Ce = {
     "B": [0.9, 1.0, 1.2],
@@ -52,7 +52,7 @@ Structures kept just above freezing with cold, ventilated roofs and min R-value 
 Unheated and open air structures                                                    1.2
 Freezer building                                                                    1.3
 Continuously heated greenhouses with max R-value of 2                               0.85
-""".replace("    ", "\t")[1:-1]
+"""[1:-1]
 
 TABLE7P3D2_Ct_NS = SimpleNamespace()
 TABLE7P3D2_Ct_NS.thermal_condition = (
@@ -120,7 +120,7 @@ other           1.0     0       0       0
                 1.0     30      37.5    45
                 0       70      70      70
                 0       90      90      90
-""".replace("    ", "\t")[1:-1]
+"""[1:-1]
 
 FIG7P4D1_Cs_NS = SimpleNamespace()
 # Z values
