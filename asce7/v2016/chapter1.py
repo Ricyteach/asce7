@@ -1,3 +1,7 @@
+"""CHAPTER 1
+GENERAL
+"""
+
 from enum import Enum
 import pandas as pd
 

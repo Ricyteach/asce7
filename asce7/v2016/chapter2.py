@@ -1,3 +1,7 @@
+"""CHAPTER 2
+COMBINATIONS OF LOADS
+"""
+
 from ceng.load import Combination
 
 

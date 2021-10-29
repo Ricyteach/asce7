@@ -1,4 +1,7 @@
-"""ASCE 7 Figures"""
+"""CHAPTER 7
+SNOW LOADS
+"""
+
 import numpy as np
 from asce7.common import Deg
 from ceng.interp import interp_dict
