@@ -61,5 +61,7 @@ def attach_filter(filter_func, func=None):
     if func is None:
         return partial(attach_filter, filter_func)
 
-    func.filter = filter_func
+    filter_seq = getattr(func, "filter", [])
+    filter_seq.append(filter_func)
+    func.filter = filter_seq
     return func
