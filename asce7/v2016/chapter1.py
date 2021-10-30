@@ -3,7 +3,6 @@ GENERAL
 """
 
 from enum import Enum
-import pandas as pd
 
 
 class LoadType(str, Enum):
@@ -43,12 +42,13 @@ class Risk(str, Enum):
     IV = "IV"
 
 
-TABLE_1P5D2_Ix = pd.DataFrame({LoadType.snow: [0.80, 1.00, 1.10, 1.20],
-                               LoadType.dead_ice: [0.80, 1.00, 1.15, 1.25],
-                               LoadType.seismic: [1.00, 1.00, 1.25, 1.50]},
-                              index=list(Risk))
+TABLE_1P5D2_Ix = {load_type: dict(zip(Risk,lst))
+                  for load_type, lst in {LoadType.snow: [0.80, 1.00, 1.10, 1.20],
+                                         LoadType.dead_ice: [0.80, 1.00, 1.15, 1.25],
+                                         LoadType.seismic: [1.00, 1.00, 1.25, 1.50]}.items()
+                  }
 
 
 def importance_factor(risk, load_type):
     """cf. Table 1.5-2 Importance Factors"""
-    return TABLE_1P5D2_Ix[LoadType(load_type)][Risk(risk)]
+    return TABLE_1P5D2_Ix[load_type][risk]
