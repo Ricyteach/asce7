@@ -10,7 +10,12 @@ from types import SimpleNamespace
 #########################################
 # flat roof snow load, pf
 #########################################
-_FIG7P3D1_Ce__STR = """
+
+# ---------------------------------------
+#    Ce
+# ---------------------------------------
+
+_FIG7P3D1_STR = """
                                             Ce
 
                                             Snow Exposure
@@ -24,27 +29,31 @@ Alaska no trees within 2 mi radius          0.7     0.8         nan
 """[1:-1]
 
 
-TABLE7P3D1_Ce_NS = SimpleNamespace()
-TABLE7P3D1_Ce_NS.wind_surface_roughness = ("B", "C", "D", "Windswept mountainous above tree line",
+TABLE7P3D1_NS = SimpleNamespace()
+TABLE7P3D1_NS.wind_surface_roughness = ("B", "C", "D", "Windswept mountainous above tree line",
                                            "Alaska no trees within 2 mi radius")
-TABLE7P3D1_Ce_NS.snow_exposure = ("fully", "partially", "sheltered")
-TABLE7P3D1_Ce_NS.Ce = {
+TABLE7P3D1_NS.snow_exposure = ("fully", "partially", "sheltered")
+TABLE7P3D1_NS.Ce = {
     "B": [0.9, 1.0, 1.2],
     "C": [0.9, 1.0, 1.1],
     "D": [0.8, 0.9, 1.0],
     "Windswept mountainous above tree line": [0.7, 0.8, np.nan],
     "Alaska no trees within 2 mi radius": [0.7, 0.8, np.nan],
 }
-TABLE7P3D1_Ce_DICT = dict(zip(TABLE7P3D1_Ce_NS.wind_surface_roughness,
-                              (dict(zip(TABLE7P3D1_Ce_NS.snow_exposure, seq)) for seq in TABLE7P3D1_Ce_NS.Ce.values())))
+TABLE7P3D1_DICT = dict(zip(TABLE7P3D1_NS.wind_surface_roughness,
+                              (dict(zip(TABLE7P3D1_NS.snow_exposure, seq)) for seq in TABLE7P3D1_NS.Ce.values())))
 
 
-def table7p3d1_Ce(wind_surface_roughness, snow_exposure):
+def Ce(wind_surface_roughness, snow_exposure):
     """Figure 7.3-1 Exposure factor, Ce
 
     (Table 7.3-1 for Ce definitions)
     """
-    return TABLE7P3D1_Ce_DICT[wind_surface_roughness][snow_exposure]
+    return TABLE7P3D1_DICT[wind_surface_roughness][snow_exposure]
+
+# ----------------------------------
+#   End Ce
+# ----------------------------------
 
 
 _TABLE7P3D2_Ct__STR = """
