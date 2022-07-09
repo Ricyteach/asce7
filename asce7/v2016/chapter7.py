@@ -44,7 +44,7 @@ TABLE7P3D1_DICT = dict(zip(TABLE7P3D1_NS.wind_surface_roughness,
                               (dict(zip(TABLE7P3D1_NS.snow_exposure, seq)) for seq in TABLE7P3D1_NS.Ce.values())))
 
 
-def Ce(wind_surface_roughness, snow_exposure):
+def calc_Ce(wind_surface_roughness, snow_exposure):
     """Figure 7.3-1 Exposure factor, Ce
 
     (Table 7.3-1 for Ce definitions)
