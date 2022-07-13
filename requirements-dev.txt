@@ -1,0 +1,11 @@
+black
+ceng
+numpy>=1.20
+pre-commit
+pytest
+scipy>=1.7
+tox
+
+-r requirements-flake8.txt
+
+-e .
