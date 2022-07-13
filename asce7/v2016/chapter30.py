@@ -27,25 +27,27 @@ _FIG30P3D2A_GCp_ROOF_STR = """
 0 deg to 7 deg Roof Slope
 
 Zone 1' 1 2 3 Down
-area (sq ft)    1       10      100     2000    
+area (sq ft)    1       10      100     2000
 GCp             0.3     0.3     0.2     0.2
 
 Zone 1' Up
-area (sq ft)    1       100     1000    2000    
+area (sq ft)    1       100     1000    2000
 GCp             -0.9    -0.9    -0.4    -0.4
 
 Zone 1 Up
-area (sq ft)    1       10      500     2000    
+area (sq ft)    1       10      500     2000
 GCp             -1.7    -1.7    -1.0    -1.0
 
 Zone 2 Up
-area (sq ft)    1       10      500     2000    
+area (sq ft)    1       10      500     2000
 GCp             -2.1    -2.1    -1.4    -1.4
 
 Zone 3 Up
-area (sq ft)    1       10      500     2000    
+area (sq ft)    1       10      500     2000
 GCp             -3.2    -3.2    -1.4    -1.4
-"""[1:-1]
+"""[
+    1:-1
+]
 
 FIG30P3D2A_GCp_ROOF_NS = SimpleNamespace()
 FIG30P3D2A_GCp_ROOF_NS.roof_type = "gable"
@@ -125,7 +127,20 @@ def fig30p3d2A_zone_check(d1, d2, h):
 # LOOKUP FOR ALL CHAPTER 30 GCp FIGURES
 
 # TODO
-EQ30P3D1_FIGURES_GCp_LOOKUP = dict(zip(
-    ("walls", "flat", "gable", "hip", "stepped", "multispan gable", "monoslope", "sawtooth", "domed", "arched"),
-    (NotImplemented,)*2 + (fig30p3d2A_GCp,)*3 + (NotImplemented,)*5
-))
+EQ30P3D1_FIGURES_GCp_LOOKUP = dict(
+    zip(
+        (
+            "walls",
+            "flat",
+            "gable",
+            "hip",
+            "stepped",
+            "multispan gable",
+            "monoslope",
+            "sawtooth",
+            "domed",
+            "arched",
+        ),
+        (NotImplemented,) * 2 + (fig30p3d2A_GCp,) * 3 + (NotImplemented,) * 5,
+    )
+)

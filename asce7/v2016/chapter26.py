@@ -12,17 +12,20 @@ import numpy as np
 
 TABLE26P11D1_TERRAIN_EXPOSURE_CONSTANTS_STR = """
 # TODO
-"""[1:-1]
+"""[
+    1:-1
+]
 
 
 # 26.10.2 Velocity Pressure qz
+
 
 def eq26p10d1_qz(Kz, Kzt, Kd, Ke, V):
     """Velocity pressure, qz, evaluated at height z above ground
 
     qz = 0.00256*Kz*Kzt*Kd*Ke*V**2 (lb∕ft2)
     """
-    return 0.00256*Kz*Kzt*Kd*Ke*V**2
+    return 0.00256 * Kz * Kzt * Kd * Ke * V**2
 
 
 def eq26p10d1_Ke(zg):
@@ -32,7 +35,7 @@ def eq26p10d1_Ke(zg):
 
     From Table 26.9-1: Ground Elevation Factor, Ke
     """
-    return np.exp(-0.0000362*zg)
+    return np.exp(-0.0000362 * zg)
 
 
 def eq26p10d1_Kz(z):

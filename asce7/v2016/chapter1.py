@@ -7,6 +7,7 @@ from enum import Enum
 
 class LoadType(str, Enum):
     """cf. Sections 1.2.2 and 2.2"""
+
     dead = "D"
     live = "L"
     snow = "S"
@@ -36,17 +37,21 @@ class Risk(str, Enum):
 
     cf. Table 1.5-1
     """
+
     I = "I"
     II = "II"
     III = "III"
     IV = "IV"
 
 
-TABLE_1P5D2_Ix = {load_type: dict(zip(Risk,lst))
-                  for load_type, lst in {LoadType.snow: [0.80, 1.00, 1.10, 1.20],
-                                         LoadType.dead_ice: [0.80, 1.00, 1.15, 1.25],
-                                         LoadType.seismic: [1.00, 1.00, 1.25, 1.50]}.items()
-                  }
+TABLE_1P5D2_Ix = {
+    load_type: dict(zip(Risk, lst))
+    for load_type, lst in {
+        LoadType.snow: [0.80, 1.00, 1.10, 1.20],
+        LoadType.dead_ice: [0.80, 1.00, 1.15, 1.25],
+        LoadType.seismic: [1.00, 1.00, 1.25, 1.50],
+    }.items()
+}
 
 
 def importance_factor(risk, load_type):

@@ -1,11 +1,23 @@
 [build-system]
-requires = ["flit_core >=3.4,<4"]
 build-backend = "flit_core.buildapi"
+requires = [
+  "flit_core<4,>=3.4",
+]
 
 [project]
 name = "asce7"
-authors = [{name = "Ricky L Teachey Jr", email = "ricky@teachey.org"}]
 readme = "README.md"
+authors = [{name = "Ricky L Teachey Jr", email = "ricky@teachey.org"}]
+requires-python=">=3.9"
+dependencies = [
+  "ceng",
+  "numpy>=1.20",
+  "scipy>=1.7",
+]
+dynamic = [
+  "description",
+  "version",
+]
 classifiers = [
     "Intended Audience :: Other Audience",
     "License :: OSI Approved :: MIT License",
@@ -13,18 +25,10 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Development Status :: 2 - Pre-Alpha",
 ]
-requires-python=">=3.9"
-dynamic = ["version", "description"]
-dependencies = [
-    "numpy >=1.20",
-    "scipy >=1.7",
-    "ceng",
+[project.optional-dependencies]
+test = [
+  "pytest>=6.2",
 ]
 
 [project.urls]
 Home = "https://github.com/ricyteach/asce7"
-
-[project.optional-dependencies]
-test = [
-    "pytest >=6.2",
-]

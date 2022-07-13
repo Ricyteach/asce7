@@ -2,6 +2,7 @@
 from functools import partial
 
 from .chapter1 import importance_factor, Risk, LoadType
+
 # from . import chapter2 as load_combinations
 # from . import chapter7 as snow
 # from . import chapter11 as seismic

@@ -21,12 +21,19 @@ C                                           0.9     1.0         1.1
 D                                           0.8     0.9         1.0
 Windswept mountainous above tree line       0.7     0.8         nan
 Alaska no trees within 2 mi radius          0.7     0.8         nan
-"""[1:-1]
+"""[
+    1:-1
+]
 
 
 TABLE7P3D1_Ce_NS = SimpleNamespace()
-TABLE7P3D1_Ce_NS.wind_surface_roughness = ("B", "C", "D", "Windswept mountainous above tree line",
-                                           "Alaska no trees within 2 mi radius")
+TABLE7P3D1_Ce_NS.wind_surface_roughness = (
+    "B",
+    "C",
+    "D",
+    "Windswept mountainous above tree line",
+    "Alaska no trees within 2 mi radius",
+)
 TABLE7P3D1_Ce_NS.snow_exposure = ("fully", "partially", "sheltered")
 TABLE7P3D1_Ce_NS.Ce = {
     "B": [0.9, 1.0, 1.2],
@@ -35,8 +42,15 @@ TABLE7P3D1_Ce_NS.Ce = {
     "Windswept mountainous above tree line": [0.7, 0.8, np.nan],
     "Alaska no trees within 2 mi radius": [0.7, 0.8, np.nan],
 }
-TABLE7P3D1_Ce_DICT = dict(zip(TABLE7P3D1_Ce_NS.wind_surface_roughness,
-                              (dict(zip(TABLE7P3D1_Ce_NS.snow_exposure, seq)) for seq in TABLE7P3D1_Ce_NS.Ce.values())))
+TABLE7P3D1_Ce_DICT = dict(
+    zip(
+        TABLE7P3D1_Ce_NS.wind_surface_roughness,
+        (
+            dict(zip(TABLE7P3D1_Ce_NS.snow_exposure, seq))
+            for seq in TABLE7P3D1_Ce_NS.Ce.values()
+        ),
+    )
+)
 
 
 def table7p3d1_Ce(wind_surface_roughness, snow_exposure):
@@ -55,7 +69,9 @@ Structures kept just above freezing with cold, ventilated roofs and min R-value 
 Unheated and open air structures                                                    1.2
 Freezer building                                                                    1.3
 Continuously heated greenhouses with max R-value of 2                               0.85
-"""[1:-1]
+"""[
+    1:-1
+]
 
 TABLE7P3D2_Ct_NS = SimpleNamespace()
 TABLE7P3D2_Ct_NS.thermal_condition = (
@@ -82,7 +98,7 @@ def eq7p3d1_pf(Ce, Ct, Is, pg):
 
     pf = Ce*Ct*Is*pg
     """
-    return Ce*Ct*Is*pg
+    return Ce * Ct * Is * pg
 
 
 #########################################
@@ -123,7 +139,9 @@ other           1.0     0       0       0
                 1.0     30      37.5    45
                 0       70      70      70
                 0       90      90      90
-"""[1:-1]
+"""[
+    1:-1
+]
 
 FIG7P4D1_Cs_NS = SimpleNamespace()
 # Z values
@@ -141,14 +159,11 @@ FIG7P4D1_Cs_NS.roof_slope = dict(
         [Deg(v) for v in [0, 30, 70, 90]],
         [Deg(v) for v in [0, 37.5, 70, 90]],
         [Deg(v) for v in [0, 45, 70, 90]],
-    ]
+    ],
 )
 
 FIG7P4D1_Cs_DICT = interp_dict(
-    x=FIG7P4D1_Cs_NS.roof_slope,
-    y=FIG7P4D1_Cs_NS.Ct,
-    z=FIG7P4D1_Cs_NS.Cs,
-    axis=0
+    x=FIG7P4D1_Cs_NS.roof_slope, y=FIG7P4D1_Cs_NS.Ct, z=FIG7P4D1_Cs_NS.Cs, axis=0
 )
 
 
@@ -165,7 +180,7 @@ def eq7p4d1_ps(Cs, pf):
 
     ps = Cs*pf
     """
-    return Cs*pf
+    return Cs * pf
 
 
 #########################################
@@ -180,5 +195,5 @@ def eq7p10d1_R(pg, roof_slope, W):
     R = 0
     """
     pg_le_20psf_and_nonzero = (pg <= 20) & (pg > 0)
-    low_slope = roof_slope < (W/50)
+    low_slope = roof_slope < (W / 50)
     return 5 * (pg_le_20psf_and_nonzero | low_slope)
